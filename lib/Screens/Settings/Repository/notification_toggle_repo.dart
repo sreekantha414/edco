@@ -1,7 +1,6 @@
 import '../../../../api_models/api_response.dart';
-import '../../LoginScreen/Model/LoginModel.dart';
-import '../../SignUpScreen/Model/SignUpModel.dart';
+import '../Model/ToggleNotificationModel.dart';
 
 abstract class NotificationToggleRepository {
-  Future<ApiResponse<SignUpModel>> notificationToggle(dynamic data);
+  Future<ApiResponse<ToggleNotificationModel>> notificationToggle(dynamic data);
 }

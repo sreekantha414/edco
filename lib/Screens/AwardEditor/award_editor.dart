@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AwardEditData {
   String text;
@@ -121,7 +122,14 @@ class _AwardEditorState extends State<AwardEditor> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        actions: [Padding(padding: EdgeInsets.only(right: 16), child: Image.asset(ImageAssetPath.share, height: 28.h))],
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Share.share(widget.imageUrl ?? '');
+            },
+            child: Padding(padding: EdgeInsets.only(right: 16), child: Image.asset(ImageAssetPath.share, height: 28.h)),
+          ),
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

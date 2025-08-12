@@ -1,3 +1,17 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Flutter's required Gradle plugin
+        classpath("com.android.tools.build:gradle:8.1.0") // check Flutter's supported version
+        // Google services plugin
+        classpath("com.google.gms:google-services:4.4.2")
+    }
+}
+
+
 allprojects {
     repositories {
         google()

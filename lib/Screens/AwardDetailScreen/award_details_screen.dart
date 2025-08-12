@@ -242,7 +242,7 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                                   width: double.infinity,
                                   child: OutlinedButton(
                                     onPressed: () async {
-                                      Share.share(awardDetailState.model?.result?.first.imageUrl ?? '');
+                                      Share.share(imageUrl);
                                     },
                                     style: OutlinedButton.styleFrom(
                                       side: const BorderSide(color: Colors.white),

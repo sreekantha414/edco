@@ -87,7 +87,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
               } else {
                 notificationList.value.addAll(notificationListState.model?.result?.data ?? []);
               }
-              print('PAGE IS INCREASED == >');
               page++;
               hasNextPageUP = true;
             } else {

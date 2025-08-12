@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import '../../../api_models/api_response.dart';
 import '../../../api_models/api_status.dart';
 import '../../SignUpScreen/Model/SignUpModel.dart';
+import '../Model/ToggleNotificationModel.dart';
 
 part 'notification_toggle_event.dart';
 part 'notification_toggle_state.dart';

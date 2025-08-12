@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:award_maker/Screens/WelcomeScreen/welcome_screen.dart';
+import 'package:award_maker/main.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -9,6 +12,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../Screens/SignUpScreen/Model/SignUpModel.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import '../api_client/dio_client.dart';
+import '../constants/app_constants.dart';
 
 class AppHelper {
   static void showLogoutConfirmationDialog(BuildContext context) {
@@ -100,8 +108,56 @@ class AppHelper {
     }
 
     // Get FCM token (push notification token)
-    // String? deviceToken = await FirebaseMessaging.instance.getToken();
-    String? deviceToken = '';
+    String? deviceToken = await FirebaseMessaging.instance.getToken();
     return DeviceData(deviceType: deviceType, deviceToken: deviceToken, deviceId: deviceId, deviceName: deviceName);
+  }
+
+  static final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: "https://api.edco.com/api/v1/",
+      headers: {"Content-Type": "application/json"},
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
+
+  static Future<Map<String, dynamic>?> signInWithGoogle() async {
+    try {
+      // Step 1: Google sign-in flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['email', 'profile']).signIn();
+      if (googleUser == null) return null; // User canceled
+      DeviceData? loadedData;
+      DeviceData deviceData = await AppHelper.getDeviceData();
+      logger.w(deviceData.toJson());
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final String? idToken = googleAuth.accessToken;
+      logger.w(googleUser.email);
+      if (idToken == null) return null;
+      logger.w(idToken);
+
+      // Step 2: Create request body
+      final Map<String, dynamic> loginData = {
+        "loginType": 3,
+        "loginToken": idToken,
+        "isSocialVerified": true,
+        "name": googleUser.displayName ?? "",
+        "email": googleUser.email,
+        "deviceData": deviceData.toJson(),
+      };
+
+      logger.w(loginData);
+      // Step 3: Send to backend
+      final response = await _dio.post(
+        "https://api.edco.com/api/v1/login",
+        data: loginData,
+        options: Options(headers: {"Authorization": basicAuthHeader('trophy_usr', 'hjGGHTy}}78'), "Content-Type": "application/json"}),
+      );
+      logger.w(response.data);
+      return response.data;
+    } catch (e) {
+      print("Google sign-in error: $e");
+      return null;
+    }
   }
 }

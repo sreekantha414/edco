@@ -48,6 +48,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
         child: BlocConsumer<EditProfileBloc, EditProfileState>(
           listener: (context, editProfileState) {
             if (editProfileState.isCompleted) {
+              AlertUtils.showToast('Profile Updated!', context, AnimatedSnackBarType.success);
             } else {
               AlertUtils.showToast(editProfileState.responseMsg ?? '', context, AnimatedSnackBarType.error);
             }

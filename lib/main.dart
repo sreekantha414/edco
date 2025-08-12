@@ -3,11 +3,14 @@ import 'package:award_maker/Screens/HomeScreen/BLOC/award_list_bloc.dart';
 import 'package:award_maker/Screens/LoginScreen/Bloc/login_bloc.dart';
 import 'package:award_maker/utils/app_dependencies.dart';
 import 'package:award_maker/utils/app_helper.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Push_Notification/notification.dart';
 import 'Screens/AwardDetailScreen/Bloc/award_detail_bloc.dart';
 import 'Screens/Categories/Bloc/categories_bloc.dart';
 import 'Screens/Change Password/Bloc/change_password_bloc.dart';
@@ -25,15 +28,38 @@ import 'Screens/SignUpScreen/Model/SignUpModel.dart';
 import 'Screens/SplahScreen/splash_screen.dart';
 
 Logger logger = Logger();
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+}
+
 Future<void> main() async {
-  runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyBxJbEDSL1WB7lOVuYVPr2ws_YsNSFjx8E",
+      appId: "1:367424942344:android:452d56e19e0f40e94b3cbd",
+      messagingSenderId: "367424942344",
+      projectId: "award-maker-by-edco",
+    ),
+  );
+  // Firebase.initializeApp(
+  //   options: FirebaseOptions(
+  //     apiKey: "AIzaSyBxJbEDSL1WB7lOVuYVPr2ws_YsNSFjx8E",
+  //     appId: "1:367424942344:android:452d56e19e0f40e94b3cbd",
+  //     messagingSenderId: "367424942344",
+  //     projectId: "award-maker-by-edco",
+  //   ),
+  // );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   setupDependencies();
   DeviceData deviceData = await AppHelper.getDeviceData();
   logger.w(deviceData.toJson());
 
   // Save to shared preferences if needed
   await saveToPrefs(deviceData);
+  runApp(const MyApp());
 }
 
 Future<void> saveToPrefs(dynamic data) async {

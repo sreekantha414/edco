@@ -9,7 +9,7 @@ class NotificationToggleState {
   final ApiResponse? error;
   final String? responseMsg;
   final bool? isFromSearch;
-  final SignUpModel? model;
+  final ToggleNotificationModel? model;
 
   NotificationToggleState({
     this.isLoading = false,

@@ -7,6 +7,7 @@ import 'package:award_maker/Screens/OtpScreen/otp_screen.dart';
 import 'package:award_maker/Screens/SignUpScreen/sign_up_Screen.dart';
 import 'package:award_maker/Widget/app_button.dart';
 import 'package:award_maker/utils/alert_utils.dart';
+import 'package:award_maker/utils/app_helper.dart';
 import 'package:award_maker/utils/app_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,8 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordC = TextEditingController();
   bool obscurePassword = true;
   Map<String, dynamic> deviceInfo = {};
-  DeviceData? loadedData;
   late SharedPreferences prefs;
+  DeviceData? deviceData;
 
   @override
   void initState() {
@@ -43,18 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _initPrefsAndLoadDeviceData() async {
+    deviceData = await AppHelper.getDeviceData();
+    logger.w(deviceData?.toJson());
     prefs = await SharedPreferences.getInstance();
-    _loadDeviceData();
-  }
-
-  Future<void> _loadDeviceData() async {
-    String? jsonStr = prefs.getString('deviceData');
-    if (jsonStr != null) {
-      Map<String, dynamic> jsonMap = jsonDecode(jsonStr);
-      setState(() {
-        loadedData = DeviceData.fromJson(jsonMap);
-      });
-    }
   }
 
   @override
@@ -85,8 +77,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     backgroundColor: Colors.white,
                   ),
-                  onPressed: () {
-                    // TODO: Handle Google sign-in
+                  onPressed: () async {
+                    final result = await AppHelper.signInWithGoogle();
+                    logger.w(result?['result']['authtoken']);
+
+                    if (result != null) {
+                      await prefs.setString('uid', result['result']['_id']);
+                      await prefs.setString('uname', result['result']['name']);
+                      await prefs.setString(AppConstants.token, result['result']['authtoken']);
+                      await prefs.setBool('login', true);
+
+                      var token = await prefs.getString(AppConstants.token);
+                      logger.w(token);
+
+                      AlertUtils.showToast('Login Successfully' ?? '', context, AnimatedSnackBarType.success);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const Homescreen()));
+
+                      print("Login success: $result");
+                    } else {
+                      print("Login failed or canceled");
+                    }
                   },
                 ),
               ),
@@ -106,7 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         validator: (val) => val == null || val.isEmpty ? 'Please enter email' : null,
                       ),
                       const SizedBox(height: 20),
-
                       TextFormField(
                         controller: passwordC,
                         obscureText: obscurePassword,
@@ -123,7 +132,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         validator: (val) => val == null || val.isEmpty ? 'Please enter password' : null,
                       ),
                       const SizedBox(height: 20),
-
                       TextButton(
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()));
@@ -168,13 +176,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     buttonColor: Colors.blue,
                     style: TextStyle(fontSize: 16.sp, color: Colors.white),
                     onPress: () {
-                      // if (_formKey.currentState!.validate()) {
-                      //   final body = {"email": emailC.text, "password": passwordC.text, "loginType": 1};
-                      //   login(body);
-                      // }
+                      if (_formKey.currentState!.validate()) {
+                        final body = {"email": emailC.text, "password": passwordC.text, "loginType": 1, "deviceData": deviceData?.toJson()};
+                        login(body);
+                      }
 
-                      final body = {"email": "sreekantha414@gmail.com", "password": "Admin@1234", "loginType": 1};
-                      login(body);
+                      // final body = {"email": "sreekantha414@gmail.com", "password": "Admin@1234", "loginType": 1};
+                      // login(body);
                     },
                   );
                 },

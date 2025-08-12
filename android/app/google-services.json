@@ -1,0 +1,130 @@
+{
+  "project_info": {
+    "project_number": "367424942344",
+    "project_id": "award-maker-by-edco",
+    "storage_bucket": "award-maker-by-edco.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367424942344:android:c34fbc3d75c8096e4b3cbd",
+        "android_client_info": {
+          "package_name": "com.edco.awardmaker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "367424942344-3f6kjssn3t0np7rtbpo6d03g8avdk8c1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edco.awardmaker",
+            "certificate_hash": "aec161ded44e778744aa3d5d387067f8432695e9"
+          }
+        },
+        {
+          "client_id": "367424942344-vfn8ee98jkq2s7cadrgg6f7f17msmg0v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edco.awardmaker",
+            "certificate_hash": "c37738e228b17ed8c671f75e7b90e0c2e8342840"
+          }
+        },
+        {
+          "client_id": "367424942344-nl5bn5mtt65iljhb9i7hvhsa0sav7230.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxJbEDSL1WB7lOVuYVPr2ws_YsNSFjx8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "367424942344-nl5bn5mtt65iljhb9i7hvhsa0sav7230.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "367424942344-t3mbem5n5eie1icq4rnt0gps6lvfpter.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.edco.makeaward"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367424942344:android:452d56e19e0f40e94b3cbd",
+        "android_client_info": {
+          "package_name": "com.edco.makeaward"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "367424942344-1na34etsdavhqni2nalvp6vrf7u23lr4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edco.makeaward",
+            "certificate_hash": "942c0976325f31506b20a35ea9c1bbd36a0eebb7"
+          }
+        },
+        {
+          "client_id": "367424942344-5t9jnng8oul3il25sr945ujlfbfqrmsl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edco.makeaward",
+            "certificate_hash": "d1930456315868bfabee8ec3c4b8bc1bab5443c9"
+          }
+        },
+        {
+          "client_id": "367424942344-b9fakqe4clvj2mk3c7bcbgau03sej42d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edco.makeaward",
+            "certificate_hash": "27e59f6994dfce65986e736ff6835d5255930937"
+          }
+        },
+        {
+          "client_id": "367424942344-geth9k3ks4aqg38lsng31nr6qdkg8js4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edco.makeaward",
+            "certificate_hash": "c37738e228b17ed8c671f75e7b90e0c2e8342840"
+          }
+        },
+        {
+          "client_id": "367424942344-nl5bn5mtt65iljhb9i7hvhsa0sav7230.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxJbEDSL1WB7lOVuYVPr2ws_YsNSFjx8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "367424942344-nl5bn5mtt65iljhb9i7hvhsa0sav7230.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "367424942344-t3mbem5n5eie1icq4rnt0gps6lvfpter.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.edco.makeaward"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

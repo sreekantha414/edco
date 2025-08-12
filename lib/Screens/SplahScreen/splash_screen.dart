@@ -3,6 +3,7 @@ import 'package:award_maker/constants/asset_path.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Push_Notification/notification.dart';
 import '../WelcomeScreen/welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,10 +18,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late Animation<double> _scaleAnimation;
   late SharedPreferences prefs;
   bool? isLogin;
+  final PushNotificationService _notificationService = PushNotificationService();
+
   @override
   void initState() {
     super.initState();
     _initPrefsAndLoadDeviceData();
+    _notificationService.initialize();
+
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
 
     _scaleAnimation = CurvedAnimation(parent: _controller, curve: Curves.elasticOut);

@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import '../../../../api_client/api_constans.dart';
 import '../../../../api_models/api_response.dart';
 import '../../SignUpScreen/Model/SignUpModel.dart';
+import '../Model/ToggleNotificationModel.dart';
 import 'notification_toggle_repo.dart';
 
 class NotificationToggleRepositoryImpl extends NotificationToggleRepository {
@@ -12,13 +13,13 @@ class NotificationToggleRepositoryImpl extends NotificationToggleRepository {
   final logger = Logger();
 
   @override
-  Future<ApiResponse<SignUpModel>> notificationToggle(data) async {
+  Future<ApiResponse<ToggleNotificationModel>> notificationToggle(data) async {
     try {
-      final response = await _dio.post(APIConstants.users, data: data);
+      final response = await _dio.patch(APIConstants.toggleNotification, data: data);
 
       print('Response -> ${response.data}');
       logger.i(response.data);
-      final newsResponse = SignUpModel.fromJson(response.data);
+      final newsResponse = ToggleNotificationModel.fromJson(response.data);
       print("New Response -> : $newsResponse");
       return ApiResponse.success(data: newsResponse);
     } on DioException catch (error) {
@@ -26,7 +27,7 @@ class NotificationToggleRepositoryImpl extends NotificationToggleRepository {
       final response = error.response;
       print('Error Data $error');
       logger.e(response?.data['message']);
-      final newsResponse = SignUpModel.fromJson(response?.data);
+      final newsResponse = ToggleNotificationModel.fromJson(response?.data);
       print("New Response -> : $newsResponse");
       return ApiResponse.error(errorMsg: response?.data['message']);
     }

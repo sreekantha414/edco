@@ -1,5 +1,6 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:award_maker/Screens/Change%20Password/Bloc/change_password_bloc.dart';
+import 'package:award_maker/Screens/LoginScreen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,7 +48,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 children: [
                   TextField(
                     decoration: InputDecoration(
-                      labelText: 'Old Password',
+                      labelText: widget.token?.isNotEmpty == true || widget.token != null ? 'Enter Password' : 'Old Password',
                       suffixIcon: Icon(Icons.info_outline, size: 20),
                       border: const UnderlineInputBorder(),
                     ),
@@ -56,7 +57,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   const SizedBox(height: 20),
                   TextField(
                     controller: _newPass,
-                    decoration: const InputDecoration(labelText: 'New Password', border: UnderlineInputBorder()),
+                    decoration: InputDecoration(
+                        labelText: widget.token?.isNotEmpty == true || widget.token != null ? 'Confirm Password' : 'New Password',
+                        border: const UnderlineInputBorder()),
                   ),
                 ],
               ),
@@ -66,7 +69,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               listener: (context, changePasswordState) {
                 if (changePasswordState.isCompleted) {
                   if (widget.token?.isNotEmpty == true || widget.token != null) {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => ChangePasswordScreen()), (route) => false);
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => LoginScreen()), (route) => false);
                     AlertUtils.showToast('Password Reset Successfully!' ?? '', context, AnimatedSnackBarType.success);
                   } else {
                     AlertUtils.showToast('Password updated!' ?? '', context, AnimatedSnackBarType.success);

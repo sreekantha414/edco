@@ -8,7 +8,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../Widget/app_button.dart';
 import '../../utils/alert_utils.dart';
+import '../../utils/app_helper.dart';
 import '../../utils/app_utils.dart';
+import 'Model/SignUpModel.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -23,6 +25,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController emailC = TextEditingController();
   final TextEditingController passwordC = TextEditingController();
   final TextEditingController confirmPasswordC = TextEditingController();
+  DeviceData? deviceData;
+  @override
+  void initState() {
+    super.initState();
+    inItData();
+  }
+
+  void inItData() async {
+    DeviceData deviceData = await AppHelper.getDeviceData();
+    logger.w(deviceData.toJson());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,26 +66,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         validator: (val) => val == null || val.isEmpty ? 'Please enter name' : null,
                       ),
                       const SizedBox(height: 20),
-
                       TextFormField(
                         controller: emailC,
                         decoration: const InputDecoration(hintText: 'Email', border: UnderlineInputBorder()),
                         validator: (val) => val == null || val.isEmpty ? 'Please enter email' : null,
                       ),
                       const SizedBox(height: 20),
-
                       TextFormField(
                         controller: passwordC,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'Password',
                           border: const UnderlineInputBorder(),
-                          suffixIcon: IconButton(icon: const Icon(Icons.info_outline), onPressed: () {}),
+                          suffixIcon: IconButton(
+                              icon: const Icon(Icons.info_outline),
+                              onPressed: () {
+                                AlertUtils.showToast(
+                                  'Password must be at least 8 characters long, include uppercase, lowercase, number, and a special character.',
+                                  context,
+                                  AnimatedSnackBarType.info,
+                                );
+                              }),
                         ),
                         validator: (val) => val == null || val.isEmpty ? 'Please enter password' : null,
                       ),
                       const SizedBox(height: 20),
-
                       TextFormField(
                         controller: confirmPasswordC,
                         obscureText: true,
@@ -83,17 +101,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
               ),
-
               const Spacer(),
-
               BlocConsumer<SignUpBloc, SignUpState>(
                 listener: (context, signUpState) {
                   if (signUpState.isCompleted) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (_) => OTPVerificationScreen(userId: signUpState.model?.result?.id, email: signUpState.model?.result?.email),
+                        builder: (_) => OTPVerificationScreen(
+                          userId: signUpState.model?.result?.id,
+                          email: signUpState.model?.result?.email,
+                          isFromSignIn: true,
+                        ),
                       ),
                     );
                   } else if (signUpState.isFailed) {
@@ -107,7 +126,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         if (checkEmailState.model?.message == "Requested Data already exists") {
                           AlertUtils.showToast(checkEmailState.model?.message ?? '', context, AnimatedSnackBarType.error);
                         } else {
-                          final body = {"name": nameC.text.trim(), "email": emailC.text.trim(), "password": passwordC.text.trim()};
+                          final body = {
+                            "name": nameC.text.trim(),
+                            "email": emailC.text.trim(),
+                            "password": passwordC.text.trim(),
+                            "deviceData": deviceData?.toJson(),
+                          };
 
                           signUp(body);
                         }
@@ -122,20 +146,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         buttonColor: Colors.blue,
                         style: TextStyle(fontSize: 16.sp, color: Colors.white),
                         onPress: () {
-                          // if (_formKey.currentState!.validate()) {
-                          //   final body = {"name": nameC.text, "email": emailC.text, "password": passwordC.text};
-                          //   signUp(body);
-                          // }
-                          checkEmail(emailC.text.trim());
+                          if (_formKey.currentState!.validate()) {
+                            checkEmail(emailC.text.trim());
+                          }
                         },
                       );
                     },
                   );
                 },
               ),
-
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
