@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:award_maker/Screens/DrawerScreen/Bloc/edit_profile_bloc.dart';
+import 'package:award_maker/Screens/LoginScreen/login_screen.dart';
 import 'package:award_maker/Screens/MissionScreen/mission_screen.dart';
 import 'package:award_maker/Screens/Notification/notification.dart';
 import 'package:award_maker/Screens/Settings/settings_screen.dart';
@@ -8,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Widget/app_button.dart';
 import '../../main.dart';
 import '../../utils/alert_utils.dart';
 import '../../utils/app_utils.dart';
@@ -64,18 +68,18 @@ class _DrawerScreenState extends State<DrawerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.orange,
-                        child: Text('SR', style: TextStyle(fontSize: 24, color: Colors.white)),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child:
-                                isEditing
-                                    ? TextField(
+                      if (Platform.isAndroid) ...[
+                        const CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.orange,
+                          child: Text('SR', style: TextStyle(fontSize: 24, color: Colors.white)),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: isEditing
+                                  ? TextField(
                                       controller: _nameController,
                                       style: const TextStyle(color: Colors.white),
                                       cursorColor: Colors.white,
@@ -100,30 +104,45 @@ class _DrawerScreenState extends State<DrawerScreen> {
                                         });
                                       },
                                     )
-                                    : Text(uname ?? '', style: const TextStyle(color: Colors.white, fontSize: 16)),
-                          ),
-                          IconButton(
-                            icon: Icon(isEditing ? Icons.check : Icons.edit, color: Colors.white, size: 24.sp),
-                            onPressed: () async {
-                              setState(() {
-                                if (isEditing) {
-                                  uname = _nameController.text.trim();
+                                  : Text(uname ?? '', style: const TextStyle(color: Colors.white, fontSize: 16)),
+                            ),
+                            IconButton(
+                              icon: Icon(isEditing ? Icons.check : Icons.edit, color: Colors.white, size: 24.sp),
+                              onPressed: () async {
+                                setState(() {
+                                  if (isEditing) {
+                                    uname = _nameController.text.trim();
 
-                                  var body = {"name": uname};
-                                  editProfile(uid, body);
-                                }
-                                isEditing = !isEditing;
-                              });
-                              await prefs?.setString('uname', _nameController.text.trim());
-                              uname = await prefs?.getString('uname');
+                                    var body = {"name": uname};
+                                    editProfile(uid, body);
+                                  }
+                                  isEditing = !isEditing;
+                                });
+                                await prefs?.setString('uname', _nameController.text.trim());
+                                uname = await prefs?.getString('uname');
 
-                              logger.w(uname);
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      const Text('sreekantha414@gmail.com', style: TextStyle(color: Colors.white70)),
+                                logger.w(uname);
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text('sreekantha414@gmail.com', style: TextStyle(color: Colors.white70)),
+                      ],
+                      if (Platform.isIOS) ...[
+                        SizedBox(height: 110.h),
+                        Text('Account', style: TextStyle(color: Colors.white, fontSize: 16.sp)),
+                        SizedBox(height: 10.h),
+                        AppButton(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          buttonName: 'Login / Register',
+                          buttonColor: Colors.white,
+                          style: TextStyle(fontSize: 16.sp, color: Colors.blue),
+                          onPress: () {
+                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (route) => false);
+                          },
+                        )
+                      ]
                     ],
                   ),
                 ),
@@ -131,6 +150,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                   child: Container(
                     color: Colors.white,
                     child: ListView(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
                       children: [
                         DrawerTile(
                           icon: Icons.home,
@@ -139,20 +160,22 @@ class _DrawerScreenState extends State<DrawerScreen> {
                             Navigator.pop(context);
                           },
                         ),
-                        DrawerTile(
-                          icon: Icons.notifications,
-                          title: 'Notification',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationScreen()));
-                          },
-                        ),
-                        DrawerTile(
-                          icon: Icons.settings,
-                          title: 'Settings',
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
-                          },
-                        ),
+                        if (Platform.isAndroid) ...[
+                          DrawerTile(
+                            icon: Icons.notifications,
+                            title: 'Notification',
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationScreen()));
+                            },
+                          ),
+                          DrawerTile(
+                            icon: Icons.settings,
+                            title: 'Settings',
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                            },
+                          ),
+                        ],
                         DrawerTile(
                           icon: Icons.apartment,
                           title: 'Our Company',

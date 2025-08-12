@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:award_maker/Screens/LoginScreen/Bloc/forgot_password_bloc.dart';
@@ -146,65 +147,158 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const Spacer(),
+              if (Platform.isAndroid) ...[
+                const Spacer(),
+                BlocConsumer<LoginBloc, LoginState>(
+                  listener: (context, loginState) async {
+                    if (loginState.isCompleted) {
+                      await prefs.setString('uid', loginState.model?.result?.id ?? '');
+                      await prefs.setString('uname', loginState.model?.result?.name ?? '');
+                      await prefs.setString(AppConstants.token, loginState.model?.result?.authtoken ?? '');
 
-              BlocConsumer<LoginBloc, LoginState>(
-                listener: (context, loginState) async {
-                  if (loginState.isCompleted) {
-                    await prefs.setString('uid', loginState.model?.result?.id ?? '');
-                    await prefs.setString('uname', loginState.model?.result?.name ?? '');
-                    await prefs.setString(AppConstants.token, loginState.model?.result?.authtoken ?? '');
+                      await prefs.setBool('login', true);
+                      var uid = await prefs.getString('uid');
+                      var uname = await prefs.getString('uname');
+                      var token = await prefs.getString(AppConstants.token);
 
-                    await prefs.setBool('login', true);
-                    var uid = await prefs.getString('uid');
-                    var uname = await prefs.getString('uname');
-                    var token = await prefs.getString(AppConstants.token);
+                      logger.w(uid);
+                      logger.w(uname);
+                      logger.w(token);
 
-                    logger.w(uid);
-                    logger.w(uname);
-                    logger.w(token);
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Homescreen()), (route) => false);
+                    } else if (loginState.isFailed) {
+                      AlertUtils.showToast(loginState.responseMsg ?? '', context, AnimatedSnackBarType.error);
+                    }
+                  },
+                  builder: (context, state) {
+                    return AppButton(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      buttonName: 'LOGIN',
+                      buttonColor: Colors.blue,
+                      style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                      onPress: () {
+                        if (_formKey.currentState!.validate()) {
+                          final body = {
+                            "email": emailC.text,
+                            "password": passwordC.text,
+                            "loginType": 1,
+                            "deviceData": deviceData?.toJson()
+                          };
+                          login(body);
+                        }
 
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Homescreen()), (route) => false);
-                  } else if (loginState.isFailed) {
-                    AlertUtils.showToast(loginState.responseMsg ?? '', context, AnimatedSnackBarType.error);
-                  }
-                },
-                builder: (context, state) {
-                  return AppButton(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    buttonName: 'LOGIN',
-                    buttonColor: Colors.blue,
-                    style: TextStyle(fontSize: 16.sp, color: Colors.white),
-                    onPress: () {
-                      if (_formKey.currentState!.validate()) {
-                        final body = {"email": emailC.text, "password": passwordC.text, "loginType": 1, "deviceData": deviceData?.toJson()};
-                        login(body);
-                      }
+                        // final body = {"email": "sreekantha414@gmail.com", "password": "Admin@1234", "loginType": 1};
+                        // login(body);
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Don’t have an account? ", style: TextStyle(color: Colors.black, fontSize: 14.sp, fontFamily: "Poppins_Bold")),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
+                      }, // or navigate to signup
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontFamily: "Poppins_Bold"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (Platform.isIOS) ...[
+                const SizedBox(height: 20),
+                BlocConsumer<LoginBloc, LoginState>(
+                  listener: (context, loginState) async {
+                    if (loginState.isCompleted) {
+                      await prefs.setString('uid', loginState.model?.result?.id ?? '');
+                      await prefs.setString('uname', loginState.model?.result?.name ?? '');
+                      await prefs.setString(AppConstants.token, loginState.model?.result?.authtoken ?? '');
 
-                      // final body = {"email": "sreekantha414@gmail.com", "password": "Admin@1234", "loginType": 1};
-                      // login(body);
+                      await prefs.setBool('login', true);
+                      var uid = await prefs.getString('uid');
+                      var uname = await prefs.getString('uname');
+                      var token = await prefs.getString(AppConstants.token);
+
+                      logger.w(uid);
+                      logger.w(uname);
+                      logger.w(token);
+
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Homescreen()), (route) => false);
+                    } else if (loginState.isFailed) {
+                      AlertUtils.showToast(loginState.responseMsg ?? '', context, AnimatedSnackBarType.error);
+                    }
+                  },
+                  builder: (context, state) {
+                    return AppButton(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      buttonName: 'LOGIN',
+                      buttonColor: Colors.blue,
+                      style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                      onPress: () {
+                        if (_formKey.currentState!.validate()) {
+                          final body = {
+                            "email": emailC.text,
+                            "password": passwordC.text,
+                            "loginType": 1,
+                            "deviceData": deviceData?.toJson()
+                          };
+                          login(body);
+                        }
+
+                        // final body = {"email": "sreekantha414@gmail.com", "password": "Admin@1234", "loginType": 1};
+                        // login(body);
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Don’t have an account? ", style: TextStyle(color: Colors.black, fontSize: 14.sp, fontFamily: "Poppins_Bold")),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
+                      }, // or navigate to signup
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontFamily: "Poppins_Bold"),
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.black12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      final body = {
+                        "email": "sreekantha414@gmail.com",
+                        "password": "Admin@1234",
+                        "loginType": 1,
+                        "deviceData": deviceData?.toJson()
+                      };
+                      login(body);
                     },
-                  );
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Don’t have an account? ", style: TextStyle(color: Colors.black, fontSize: 14.sp, fontFamily: "Poppins_Bold")),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
-                    }, // or navigate to signup
                     child: const Text(
-                      "Sign Up",
-                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontFamily: "Poppins_Bold"),
+                      'Continue as guest',
+                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ],
           ),
         ),
