@@ -18,6 +18,8 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController _oldPass = TextEditingController();
   TextEditingController _newPass = TextEditingController();
 
@@ -37,31 +39,44 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           children: [
             const Text('CHANGE PASSWORD', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.black)),
             const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
-              ),
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: widget.token?.isNotEmpty == true || widget.token != null ? 'Enter Password' : 'Old Password',
-                      suffixIcon: Icon(Icons.info_outline, size: 20),
-                      border: const UnderlineInputBorder(),
+            Form(
+              key: _formKey,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+                ),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: widget.token?.isNotEmpty == true || widget.token != null ? 'Enter Password' : 'Old Password',
+                        suffixIcon: Icon(Icons.info_outline, size: 20),
+                        border: const UnderlineInputBorder(),
+                      ),
+                      controller: _oldPass,
+                      validator: (val) => val == null || val.isEmpty
+                          ? (widget.token?.isNotEmpty == true || widget.token != null)
+                              ? 'Please enter password'
+                              : 'Please enter old password'
+                          : null,
                     ),
-                    controller: _oldPass,
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _newPass,
-                    decoration: InputDecoration(
-                        labelText: widget.token?.isNotEmpty == true || widget.token != null ? 'Confirm Password' : 'New Password',
-                        border: const UnderlineInputBorder()),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _newPass,
+                      decoration: InputDecoration(
+                          labelText: widget.token?.isNotEmpty == true || widget.token != null ? 'Confirm Password' : 'New Password',
+                          border: const UnderlineInputBorder()),
+                      validator: (val) => val == null || val.isEmpty
+                          ? (widget.token?.isNotEmpty == true || widget.token != null)
+                              ? 'Please enter confirm password'
+                              : 'Please enter new password'
+                          : null,
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 40),
@@ -88,11 +103,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: TextStyle(fontSize: 16.sp, color: Colors.white),
                   onPress: () {
                     if (widget.token?.isNotEmpty == true || widget.token != null) {
-                      var body = {"password": _newPass.text.trim()};
-                      changePassword(body);
+                      if (_formKey.currentState!.validate()) {
+                        var body = {"password": _newPass.text.trim()};
+                        changePassword(body);
+                      }
                     } else {
-                      var body = {"oldPassword": _oldPass.text.trim(), "newPassword": _newPass.text.trim()};
-                      changePassword(body);
+                      if (_formKey.currentState!.validate()) {
+                        if (_oldPass.text.trim() == _newPass.text.trim()) {
+                          AlertUtils.showToast('New password must be different from the old one.', context, AnimatedSnackBarType.warning);
+                          return;
+                        }
+                        var body = {"oldPassword": _oldPass.text.trim(), "newPassword": _newPass.text.trim()};
+                        changePassword(body);
+                      }
                     }
                   },
                 );

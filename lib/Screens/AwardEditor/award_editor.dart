@@ -1,9 +1,15 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:award_maker/constants/asset_path.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:ui' as ui;
 
 class AwardEditData {
   String text;
@@ -25,9 +31,10 @@ class AwardEditData {
 
 class AwardEditor extends StatefulWidget {
   final String? imageUrl;
+  final String? imageName;
   final AwardEditData? initialData;
 
-  const AwardEditor({super.key, this.imageUrl, this.initialData});
+  const AwardEditor({super.key, this.imageUrl, this.imageName, this.initialData});
 
   @override
   State<AwardEditor> createState() => _AwardEditorState();
@@ -124,7 +131,12 @@ class _AwardEditorState extends State<AwardEditor> {
         leading: const BackButton(color: Colors.black),
         actions: [
           GestureDetector(
-            onTap: () {
+            onTap: () async {
+              if (widget.initialData != null && widget.initialData!.text.isNotEmpty) {
+                await shareEditedImageWithText(widget.imageUrl ?? '', widget.initialData!, widget.imageName ?? '');
+              } else if (widget.imageUrl?.isNotEmpty == true) {
+                await shareImageFromUrl(widget.imageUrl ?? '', widget.imageName);
+              }
               Share.share(widget.imageUrl ?? '');
             },
             child: Padding(padding: EdgeInsets.only(right: 16), child: Image.asset(ImageAssetPath.share, height: 28.h)),
@@ -227,6 +239,7 @@ class _AwardEditorState extends State<AwardEditor> {
                 Expanded(
                   child: TextField(
                     controller: _textController,
+                    maxLength: 24,
                     onChanged: (value) {
                       setState(() {
                         inputText = value;
@@ -278,6 +291,111 @@ class _AwardEditorState extends State<AwardEditor> {
         ],
       ),
     );
+  }
+
+  Future<void> shareImageFromUrl(String imageUrl, String? imageName) async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final filePath = '${tempDir.path}/shared_image.jpg';
+
+      // Download image
+      await Dio().download(imageUrl, filePath);
+
+      // Share the image file
+      await Share.shareXFiles([XFile(filePath)], text: imageName);
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> shareEditedImageWithText(String imageUrl, AwardEditData data, String imageName) async {
+    try {
+      final image = await _loadImageFromNetwork(imageUrl);
+      final pictureRecorder = ui.PictureRecorder();
+
+      // Use image dimensions for canvas size
+      final canvas = Canvas(pictureRecorder, Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()));
+
+      final paint = Paint();
+
+      // Draw the original image to canvas (full size)
+      canvas.drawImage(image, Offset.zero, paint);
+
+      // Calculate scale factors to convert editor coordinates to original image coordinates
+      final screenWidth = MediaQueryData.fromWindow(ui.window).size.width;
+      final editorImageHeight = 350; // fixed height used in editor screen (can be from constants)
+      final detailImageWidth = screenWidth - 40; // container width with margin in detail screen
+      final detailImageHeight = 500; // fixed container height in detail screen
+
+      // Calculate scaling from editor to image for X and Y
+      final scaleX = image.width / screenWidth;
+      final scaleY = image.height / editorImageHeight;
+
+      // Calculate the position on image canvas
+      final dx = data.position.dx * scaleX;
+      final dy = data.position.dy * scaleY;
+
+      // Prepare TextPainter for the overlay text
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: data.text,
+          style: TextStyle(
+            color: data.color,
+            fontSize: data.fontSize * scaleX, // scale font size to image scale
+            fontWeight: data.isBold ? FontWeight.bold : FontWeight.normal,
+            fontStyle: data.isItalic ? FontStyle.italic : FontStyle.normal,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+        ellipsis: '...',
+      );
+
+      textPainter.layout();
+
+      // Optionally clip or reposition if text exceeds image boundaries
+      double textX = dx;
+      double textY = dy;
+
+      if (textX + textPainter.width > image.width) {
+        textX = image.width - textPainter.width;
+      }
+      if (textY + textPainter.height > image.height) {
+        textY = image.height - textPainter.height;
+      }
+
+      // Draw the text at computed position on the canvas
+      textPainter.paint(canvas, Offset(textX, textY));
+
+      // Finish recording and convert to image
+      final picture = pictureRecorder.endRecording();
+      final img = await picture.toImage(image.width, image.height);
+      final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      // Save file temporarily
+      final tempDir = await getTemporaryDirectory();
+      final file = await File('${tempDir.path}/$imageName.png').create();
+      await file.writeAsBytes(pngBytes);
+
+      // Share the image file with text description
+      await Share.shareXFiles([XFile(file.path)], text: imageName);
+    } catch (e) {
+      print("Error sharing edited image: $e");
+    }
+  }
+
+  Future<ui.Image> _loadImageFromNetwork(String url) async {
+    final completer = Completer<ui.Image>();
+    final networkImage = NetworkImage(url);
+
+    networkImage.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener((info, _) {
+        completer.complete(info.image);
+      }),
+    );
+
+    return completer.future;
   }
 }
 

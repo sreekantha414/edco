@@ -125,7 +125,12 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                           onTap: () async {
                             final result = await Navigator.push<AwardEditData?>(
                               context,
-                              MaterialPageRoute(builder: (_) => AwardEditor(imageUrl: imageUrl, initialData: editedData)),
+                              MaterialPageRoute(
+                                  builder: (_) => AwardEditor(
+                                        imageUrl: imageUrl,
+                                        initialData: editedData,
+                                        imageName: imageName,
+                                      )),
                             );
 
                             if (result != null) {
@@ -136,17 +141,28 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                           },
                           child: const CircleIcon(icon: Icons.edit),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            final bool currentFav = awardDetailState.model?.result?.first.favourite ?? false;
-                            final body = {
-                              "favourite": !currentFav,
-                              "imageId": awardDetailState.model?.result?.first.id ?? '',
-                              "userId": uid,
-                            };
-                            setFavorite(body);
+                        BlocConsumer<SetFavoriteBloc, SetFavoriteState>(
+                          listener: (context, setFavoriteState) {
+                            if (setFavoriteState.isCompleted) {
+                              getAwardDetails(widget.imageID);
+                            }
                           },
-                          child: const CircleIcon(icon: Icons.favorite),
+                          builder: (context, setFavoriteState) {
+                            return GestureDetector(
+                                onTap: () {
+                                  final bool currentFav = awardDetailState.model?.result?.first.favourite ?? false;
+                                  final body = {
+                                    "favourite": !currentFav,
+                                    "imageId": awardDetailState.model?.result?.first.id ?? '',
+                                    "userId": uid,
+                                  };
+                                  setFavorite(body);
+                                },
+                                child: CircleIcon(
+                                  icon: Icons.favorite,
+                                  isLike: awardDetailState.model?.result?.first.favourite,
+                                ));
+                          },
                         ),
                         GestureDetector(
                           onTap: () async {
@@ -167,7 +183,12 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                         onPressed: () async {
                           final result = await Navigator.push<AwardEditData?>(
                             context,
-                            MaterialPageRoute(builder: (_) => AwardEditor(imageUrl: imageUrl, initialData: editedData)),
+                            MaterialPageRoute(
+                                builder: (_) => AwardEditor(
+                                      imageUrl: imageUrl,
+                                      initialData: editedData,
+                                      imageName: imageName,
+                                    )),
                           );
 
                           if (result != null) {
@@ -248,7 +269,8 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                                       side: const BorderSide(color: Colors.white),
                                       padding: const EdgeInsets.symmetric(vertical: 14),
                                     ),
-                                    child: const Text('Share Image', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                                    child:
+                                        const Text('BUY NOW FROM EDCO', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                                   ),
                                 ),
                               ],
@@ -410,13 +432,11 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
     final completer = Completer<ui.Image>();
     final networkImage = NetworkImage(url);
 
-    networkImage
-        .resolve(const ImageConfiguration())
-        .addListener(
-          ImageStreamListener((info, _) {
-            completer.complete(info.image);
-          }),
-        );
+    networkImage.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener((info, _) {
+        completer.complete(info.image);
+      }),
+    );
 
     return completer.future;
   }

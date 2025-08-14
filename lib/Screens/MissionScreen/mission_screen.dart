@@ -32,7 +32,6 @@ class PrivacyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(),
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -54,7 +53,6 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(),
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -64,6 +62,46 @@ class AboutScreen extends StatelessWidget {
         ),
       ),
       body: const CustomWebView(url: "https://www.edco.com/aboutus"),
+    );
+  }
+}
+
+class ContactUs extends StatelessWidget {
+  const ContactUs({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: Drawer(),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Contact Us',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18, fontFamily: "Poppins_Bold"),
+        ),
+      ),
+      body: const CustomWebView(url: "https://www.edco.com/contactus"),
+    );
+  }
+}
+
+class AccountDelete extends StatelessWidget {
+  const AccountDelete({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: Drawer(),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Account Delete',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18, fontFamily: "Poppins_Bold"),
+        ),
+      ),
+      body: const CustomWebView(url: "https://docs.google.com/forms/d/e/1FAIpQLSfMTLBW0muDJH-dKjgR_c5o4H36mnYaikJYzAxLnTM55b51yw/viewform"),
     );
   }
 }

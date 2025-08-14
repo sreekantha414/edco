@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Push_Notification/notification.dart';
@@ -21,6 +22,7 @@ import 'Screens/LoginScreen/Bloc/forgot_password_bloc.dart';
 import 'Screens/Notification/Bloc/notification_list_bloc.dart';
 import 'Screens/OtpScreen/Bloc/resend_otp_bloc.dart';
 import 'Screens/OtpScreen/Bloc/verify_otp_bloc.dart';
+import 'Screens/SearchScreen/Bloc/search_bloc.dart';
 import 'Screens/Settings/Bloc/notification_toggle_bloc.dart';
 import 'Screens/SignUpScreen/Bloc/check_email_bloc.dart';
 import 'Screens/SignUpScreen/Bloc/sign_up_bloc.dart';
@@ -33,6 +35,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
+GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp(
@@ -43,14 +47,6 @@ Future<void> main() async {
       projectId: "award-maker-by-edco",
     ),
   );
-  // Firebase.initializeApp(
-  //   options: FirebaseOptions(
-  //     apiKey: "AIzaSyBxJbEDSL1WB7lOVuYVPr2ws_YsNSFjx8E",
-  //     appId: "1:367424942344:android:452d56e19e0f40e94b3cbd",
-  //     messagingSenderId: "367424942344",
-  //     projectId: "award-maker-by-edco",
-  //   ),
-  // );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   setupDependencies();
@@ -91,6 +87,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<AwardDetailBloc>(create: (_) => AwardDetailBloc()),
         BlocProvider<ChangePasswordBloc>(create: (_) => ChangePasswordBloc()),
         BlocProvider<CheckEmailBloc>(create: (_) => CheckEmailBloc()),
+        BlocProvider<SearchBloc>(create: (_) => SearchBloc()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

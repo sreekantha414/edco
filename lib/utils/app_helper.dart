@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:award_maker/Screens/WelcomeScreen/welcome_screen.dart';
 import 'package:award_maker/main.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -15,11 +16,13 @@ import '../Screens/SignUpScreen/Model/SignUpModel.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import '../Widget/webview_widget.dart';
 import '../api_client/dio_client.dart';
 import '../constants/app_constants.dart';
+import 'alert_utils.dart';
 
 class AppHelper {
-  static void showLogoutConfirmationDialog(BuildContext context) {
+  static void showLogoutConfirmationDialog(BuildContext context, void Function()? onTap) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
@@ -47,11 +50,7 @@ class AppHelper {
                   // YES BUTTON
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () async {
-                        final pref = await SharedPreferences.getInstance();
-                        await pref.clear();
-                        await Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
-                      },
+                      onPressed: onTap,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF0057B8)),
                         foregroundColor: Color(0xFF0057B8),
@@ -67,7 +66,7 @@ class AppHelper {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pop(); // Logout logic goes here
+                        Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF0057B8),
@@ -121,7 +120,7 @@ class AppHelper {
     ),
   );
 
-  static Future<Map<String, dynamic>?> signInWithGoogle() async {
+  static Future<Map<String, dynamic>?> signInWithGoogle(BuildContext context) async {
     try {
       // Step 1: Google sign-in flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['email', 'profile']).signIn();
@@ -153,11 +152,22 @@ class AppHelper {
         data: loginData,
         options: Options(headers: {"Authorization": basicAuthHeader('trophy_usr', 'hjGGHTy}}78'), "Content-Type": "application/json"}),
       );
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return response.data;
+      } else {
+        final errorMessage = response.data['message'] ?? "Login failed, please try again.";
+        AlertUtils.showToast(errorMessage, context, AnimatedSnackBarType.error);
+      }
       logger.w(response.data);
       return response.data;
     } catch (e) {
       print("Google sign-in error: $e");
       return null;
     }
+  }
+
+  static Future<void> signOutGoogle() async {
+    await googleSignIn.signOut();
+    await googleSignIn.disconnect();
   }
 }

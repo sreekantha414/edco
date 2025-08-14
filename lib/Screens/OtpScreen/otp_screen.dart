@@ -42,8 +42,8 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   }
 
   void inItData() async {
-    DeviceData deviceData = await AppHelper.getDeviceData();
-    logger.w(deviceData.toJson());
+      deviceData = await AppHelper.getDeviceData();
+    logger.w(deviceData?.toJson());
   }
 
   void startTimer() {

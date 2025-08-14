@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:award_maker/Screens/DrawerScreen/Bloc/edit_profile_bloc.dart';
+import 'package:award_maker/Screens/HomeScreen/HomeScreen.dart';
 import 'package:award_maker/Screens/LoginScreen/login_screen.dart';
 import 'package:award_maker/Screens/MissionScreen/mission_screen.dart';
 import 'package:award_maker/Screens/Notification/notification.dart';
@@ -29,50 +30,65 @@ class _DrawerScreenState extends State<DrawerScreen> {
   late SharedPreferences prefs;
   String? uid;
   String? uname;
+  String? email;
+
   @override
   void initState() {
     super.initState();
     _initData();
-    _nameController.text = uname ?? 'N/A';
+    _nameController.text = uname ?? '';
   }
 
   Future<void> _initData() async {
     prefs = await SharedPreferences.getInstance();
     uid = prefs.getString('uid');
     uname = prefs.getString('uname');
+    email = prefs.getString('email');
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: Drawer(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Homescreen()),
+          (route) => false,
+        );
+        return true;
+      },
+      child: Scaffold(
         backgroundColor: const Color(0xFF0B60B0),
-        child: BlocConsumer<EditProfileBloc, EditProfileState>(
+        body: BlocConsumer<EditProfileBloc, EditProfileState>(
           listener: (context, editProfileState) {
             if (editProfileState.isCompleted) {
+              logger.w('THISIS CALLED');
               AlertUtils.showToast('Profile Updated!', context, AnimatedSnackBarType.success);
-            } else {
+            } else if (editProfileState.isFailed) {
               AlertUtils.showToast(editProfileState.responseMsg ?? '', context, AnimatedSnackBarType.error);
             }
           },
           builder: (context, editProfileState) {
             return Column(
               children: [
-                SizedBox(height: 50.h),
+                SizedBox(height: 90.h),
                 Container(
                   width: double.infinity,
-                  color: const Color(0xFF0B60B0),
                   padding: EdgeInsets.symmetric(vertical: 30, horizontal: 16.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (Platform.isAndroid) ...[
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 30,
-                          backgroundColor: Colors.orange,
-                          child: Text('SR', style: TextStyle(fontSize: 24, color: Colors.white)),
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            uname != null && uname!.isNotEmpty
+                                ? '${uname![0].toUpperCase()}${uname!.length > 1 ? uname![1].toUpperCase() : ''}'
+                                : '',
+                            style: const TextStyle(fontSize: 24, color: Colors.white),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Row(
@@ -97,37 +113,57 @@ class _DrawerScreenState extends State<DrawerScreen> {
                                           borderSide: const BorderSide(color: Colors.white),
                                         ),
                                       ),
-                                      onSubmitted: (value) {
-                                        setState(() {
-                                          uname = value.trim();
-                                          isEditing = false;
-                                        });
+                                      onSubmitted: (value) async {
+                                        final newName = value.trim();
+                                        if (newName.isNotEmpty) {
+                                          await prefs.setString('uname', newName);
+                                          setState(() {
+                                            uname = newName;
+                                            isEditing = false;
+                                          });
+                                          var body = {"name": uname};
+                                          editProfile(uid, body);
+                                        } else {
+                                          setState(() => isEditing = false);
+                                        }
                                       },
                                     )
-                                  : Text(uname ?? '', style: const TextStyle(color: Colors.white, fontSize: 16)),
+                                  : Text(
+                                      uname ?? '',
+                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                    ),
                             ),
                             IconButton(
-                              icon: Icon(isEditing ? Icons.check : Icons.edit, color: Colors.white, size: 24.sp),
+                              icon: Icon(
+                                isEditing ? Icons.check : Icons.edit,
+                                color: Colors.white,
+                                size: 24.sp,
+                              ),
                               onPressed: () async {
-                                setState(() {
-                                  if (isEditing) {
-                                    uname = _nameController.text.trim();
-
+                                if (!isEditing) {
+                                  uname = await prefs.getString('uname');
+                                  _nameController.text = uname ?? '';
+                                  setState(() => isEditing = true);
+                                } else {
+                                  final newName = _nameController.text.trim();
+                                  if (newName.isNotEmpty) {
+                                    await prefs.setString('uname', newName);
+                                    setState(() {
+                                      uname = newName;
+                                      isEditing = false;
+                                    });
                                     var body = {"name": uname};
                                     editProfile(uid, body);
+                                  } else {
+                                    setState(() => isEditing = false);
                                   }
-                                  isEditing = !isEditing;
-                                });
-                                await prefs?.setString('uname', _nameController.text.trim());
-                                uname = await prefs?.getString('uname');
-
-                                logger.w(uname);
+                                }
                               },
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text('sreekantha414@gmail.com', style: TextStyle(color: Colors.white70)),
+                        Text(email ?? '', style: const TextStyle(color: Colors.white70)),
                       ],
                       if (Platform.isIOS) ...[
                         SizedBox(height: 110.h),
@@ -139,25 +175,46 @@ class _DrawerScreenState extends State<DrawerScreen> {
                           buttonColor: Colors.white,
                           style: TextStyle(fontSize: 16.sp, color: Colors.blue),
                           onPress: () {
-                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (route) => false);
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                              (route) => false,
+                            );
                           },
                         )
                       ]
                     ],
                   ),
                 ),
+
+                // Body List
                 Expanded(
                   child: Container(
                     color: Colors.white,
                     child: ListView(
-                      shrinkWrap: true,
                       padding: EdgeInsets.zero,
                       children: [
                         DrawerTile(
                           icon: Icons.home,
                           title: 'Home',
-                          onTap: () {
-                            Navigator.pop(context);
+                          onTap: () async {
+                            await Navigator.pushAndRemoveUntil(
+                              context,
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(milliseconds: 400),
+                                pageBuilder: (context, animation, secondaryAnimation) => Homescreen(),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(1, 0), // right to left
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                              (route) => false,
+                            );
                           },
                         ),
                         if (Platform.isAndroid) ...[
@@ -190,6 +247,15 @@ class _DrawerScreenState extends State<DrawerScreen> {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => MissionScreen()));
                           },
                         ),
+                        if (Platform.isIOS) ...[
+                          DrawerTile(
+                            icon: Icons.phone,
+                            title: 'Contact Us',
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ContactUs()));
+                            },
+                          ),
+                        ],
                         DrawerTile(
                           icon: Icons.privacy_tip,
                           title: 'Privacy Policy',
@@ -201,11 +267,12 @@ class _DrawerScreenState extends State<DrawerScreen> {
                     ),
                   ),
                 ),
-                // Fix close button background color
+
+                // Close Button
                 Container(
                   color: Colors.white,
                   width: double.infinity,
-                  padding: EdgeInsets.only(bottom: 40.h),
+                  padding: EdgeInsets.only(bottom: 40.h, top: 10),
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
@@ -214,15 +281,19 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2), // Shadow color
+                            color: Colors.black.withOpacity(0.2),
                             spreadRadius: 2,
                             blurRadius: 6,
-                            offset: const Offset(0, 3), // Shadow position
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
                       padding: const EdgeInsets.all(2),
-                      child: const CircleAvatar(radius: 22, backgroundColor: Colors.white, child: Icon(Icons.close, color: Colors.red)),
+                      child: const CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.close, color: Colors.red),
+                      ),
                     ),
                   ),
                 ),
@@ -248,7 +319,7 @@ class DrawerTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final void Function()? onTap;
-  DrawerTile({super.key, required this.icon, required this.title, required this.onTap});
+  const DrawerTile({super.key, required this.icon, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

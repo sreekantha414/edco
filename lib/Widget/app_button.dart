@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_styles.dart';
 
-class AppButton extends StatelessWidget {
+class AppButton extends StatefulWidget {
   final String? buttonName;
   final Function()? onPress;
   final bool? isVisible;
@@ -39,25 +39,41 @@ class AppButton extends StatelessWidget {
   });
 
   @override
+  _AppButtonState createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
       onTap: () {
-        if (isVisible == null || isVisible == true) {
-          onPress!();
+        if (widget.isVisible == null || widget.isVisible == true) {
+          widget.onPress?.call();
         }
       },
-      child: Container(
-        height: height ?? 50.0,
-        width: width,
-        padding: isPadding ?? false ? padding : null,
-        decoration: ShapeDecoration(color: buttonColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0))),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 150),
+        height: widget.height ?? 50.0,
+        width: widget.width,
+        padding: widget.isPadding ?? false ? widget.padding : null,
+        decoration: ShapeDecoration(
+          color: _isPressed
+              ? (widget.buttonColor ?? Colors.blue).withOpacity(0.7) // Darker on press
+              : widget.buttonColor ?? Colors.blue,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) Icon(icon, color: iconColor, size: iconSize),
-            if (iconImage != null) Image.asset(iconImage ?? '', color: iconColor, height: 20.h, width: 20.w),
+            if (widget.icon != null) Icon(widget.icon, color: widget.iconColor, size: widget.iconSize),
+            if (widget.iconImage != null) Image.asset(widget.iconImage ?? '', color: widget.iconColor, height: 20.h, width: 20.w),
             SizedBox(width: 5.w),
-            Center(child: Text(buttonName ?? '', style: style)),
+            Center(child: Text(widget.buttonName ?? '', style: widget.style)),
           ],
         ),
       ),

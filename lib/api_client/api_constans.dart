@@ -22,4 +22,5 @@ class APIConstants {
   static const resetPassword = 'password/reset';
   static const emailExist = 'exists';
   static const toggleNotification = 'toggle/notification';
+  static const search = 'images/search';
 }

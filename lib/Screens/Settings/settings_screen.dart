@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:award_maker/Screens/Change%20Password/chnage_password.dart';
+import 'package:award_maker/Screens/MissionScreen/mission_screen.dart';
 import 'package:award_maker/Screens/Notification/Bloc/notification_list_bloc.dart';
 import 'package:award_maker/Screens/Settings/Bloc/notification_toggle_bloc.dart';
 import 'package:award_maker/utils/app_colors.dart';
@@ -6,9 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Widget/webview_widget.dart';
 import '../../utils/alert_utils.dart';
 import '../../utils/app_helper.dart';
 import '../../utils/app_utils.dart';
+import '../WelcomeScreen/welcome_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -102,9 +107,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 onTap: () {
-                  AppHelper.showLogoutConfirmationDialog(context);
+                  AppHelper.showLogoutConfirmationDialog(context, () async {
+                    final pref = await SharedPreferences.getInstance();
+                    await pref.clear();
+                    AppHelper.signOutGoogle();
+                    await Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                  });
                 },
               ),
+              _buildCard(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text('Request for delete the account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    Icon(Icons.delete_outline, color: Color(0xFFEB5757)),
+                  ],
+                ),
+                onTap: () {
+                  AppHelper.showLogoutConfirmationDialog(context, () async {
+                    await Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDelete()));
+                  });
+                },
+              ),
+              if (Platform.isIOS) ...[
+                const SizedBox(height: 8),
+                _buildCard(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('Request for delete the account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                      Icon(Icons.delete_outline, color: Color(0xFFEB5757)),
+                    ],
+                  ),
+                  onTap: () {
+                    AppHelper.showLogoutConfirmationDialog(context, () async {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDelete()));
+                    });
+                  },
+                ),
+              ],
             ],
           );
         },

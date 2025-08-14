@@ -46,8 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _initPrefsAndLoadDeviceData() async {
     deviceData = await AppHelper.getDeviceData();
-    logger.w(deviceData?.toJson());
     prefs = await SharedPreferences.getInstance();
+    logger.w(deviceData?.toJson());
   }
 
   @override
@@ -79,12 +79,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     backgroundColor: Colors.white,
                   ),
                   onPressed: () async {
-                    final result = await AppHelper.signInWithGoogle();
+                    final result = await AppHelper.signInWithGoogle(context);
                     logger.w(result?['result']['authtoken']);
 
                     if (result != null) {
                       await prefs.setString('uid', result['result']['_id']);
                       await prefs.setString('uname', result['result']['name']);
+                      await prefs.setString('email', result['result']['email']);
                       await prefs.setString(AppConstants.token, result['result']['authtoken']);
                       await prefs.setBool('login', true);
 
@@ -154,6 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (loginState.isCompleted) {
                       await prefs.setString('uid', loginState.model?.result?.id ?? '');
                       await prefs.setString('uname', loginState.model?.result?.name ?? '');
+                      await prefs.setString('email', loginState.model?.result?.email ?? '');
                       await prefs.setString(AppConstants.token, loginState.model?.result?.authtoken ?? '');
 
                       await prefs.setBool('login', true);

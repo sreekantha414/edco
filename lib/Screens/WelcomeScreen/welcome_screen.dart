@@ -105,7 +105,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         buttonColor: Colors.blue,
                         style: TextStyle(fontSize: 16.sp, color: Colors.white, fontFamily: "Poppins_Bold"),
                         onPress: () {
-                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (route) => false);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
                         },
                       ),
                     ],

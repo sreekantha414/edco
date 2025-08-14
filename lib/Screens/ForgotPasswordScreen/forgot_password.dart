@@ -34,9 +34,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('FORGOT PASSWORD', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black)),
+            const Text('Forgot Password', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black)),
             const SizedBox(height: 20),
-
             Form(
               key: _formKey,
               child: Container(
@@ -72,9 +71,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
-
             BlocConsumer<ForgotPasswordBloc, ForgotPasswordState>(
               listener: (context, forgotPasswordState) {
                 if (forgotPasswordState.isCompleted) {

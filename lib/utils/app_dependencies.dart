@@ -27,6 +27,8 @@ import '../Screens/LoginScreen/Repository/login_repo_impl.dart';
 import '../Screens/Notification/Repository/notification_repo.dart';
 import '../Screens/OtpScreen/Repository/resend_otp_repo.dart';
 import '../Screens/OtpScreen/Repository/verify_otp_repo.dart';
+import '../Screens/SearchScreen/Repository/search_repo.dart';
+import '../Screens/SearchScreen/Repository/search_repo_impl.dart';
 import '../Screens/Settings/Repository/notification_toggle_repo.dart';
 import '../Screens/SignUpScreen/Repository/check_email_repo.dart';
 import '../Screens/SignUpScreen/Repository/sign_up_repo.dart';
@@ -57,4 +59,5 @@ void setupDependencies() {
   _getIt.registerSingleton<AwardDetailRepository>(AwardDetailRepositoryImpl());
   _getIt.registerSingleton<ChangePasswordRepository>(ChangePasswordRepositoryImpl());
   _getIt.registerSingleton<CheckEmailRepository>(CheckEmailRepositoryImpl());
+  _getIt.registerSingleton<SearchRepository>(SearchRepositoryImpl());
 }

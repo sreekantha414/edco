@@ -1,3 +1,4 @@
+import 'package:award_maker/main.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
@@ -23,8 +24,8 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
 
     final response = await _repository.editProfile(event.id, event.data);
     print('RESPONSE_STATUS ${response.status}');
-    // log('event data -> ');
     if (response.status == ApiStatus.success) {
+      logger.e('THIS IS CALLED');
       emit(EditProfileState(responseMsg: '', isLoading: false, isCompleted: true, model: response.data));
     } else {
       emit(

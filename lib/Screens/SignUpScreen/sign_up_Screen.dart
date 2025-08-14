@@ -33,8 +33,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void inItData() async {
-    DeviceData deviceData = await AppHelper.getDeviceData();
-    logger.w(deviceData.toJson());
+    deviceData = await AppHelper.getDeviceData();
+    logger.w(deviceData?.toJson());
   }
 
   @override

@@ -53,13 +53,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       body: BlocConsumer<CategoriesBloc, CategoriesState>(
         listener: (context, categoriesState) {
           if (categoriesState.isCompleted) {
-            categoriesList.add(categoriesState.model?.result ?? []);
+            final list = categoriesState.model?.result ?? [];
+            // Insert "All Categories" at the top with null id
+            list.insert(0, Categories(categoryName: "All Categories", id: null));
+            categoriesList.add(list);
           }
-
-          // else if (categoriesState.isFailed) {
-          //   AlertUtils.showToast(categoriesState.responseMsg ?? '', context, AnimatedSnackBarType.error);
-          // }
         },
+
+        // listener: (context, categoriesState) {
+        //   if (categoriesState.isCompleted) {
+        //     categoriesList.add(categoriesState.model?.result ?? []);
+        //   }
+        // },
         builder: (context, state) {
           return StreamBuilder<List<Categories>>(
             stream: categoriesList,
@@ -67,23 +72,29 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               return categoriesSnapshot.data?.isEmpty == true
                   ? Center(child: CircularProgressIndicator())
                   : ListView.separated(
-                    itemCount: categoriesSnapshot.data?.length ?? 0,
-                    separatorBuilder: (_, __) => SizedBox(height: 20.h, child: const Divider(height: 1, color: Colors.black12)),
-                    itemBuilder: (context, index) {
-                      final category = categoriesSnapshot.data?[index];
-                      return ListTile(
-                        leading: CachedNetworkImage(
-                          imageUrl: category?.categoryImage ?? '',
-                          height: 40.h,
-                          width: 40.w,
-                          fit: BoxFit.contain,
-                          errorWidget: (context, url, error) => Image.asset(ImageAssetPath.silverCup),
-                        ),
-                        title: Text(category?.categoryName ?? '', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
-                        onTap: () {},
-                      );
-                    },
-                  );
+                      itemCount: categoriesSnapshot.data?.length ?? 0,
+                      separatorBuilder: (_, __) => SizedBox(height: 20.h, child: const Divider(height: 1, color: Colors.black12)),
+                      itemBuilder: (context, index) {
+                        final category = categoriesSnapshot.data?[index];
+                        return ListTile(
+                          leading: CachedNetworkImage(
+                            imageUrl: category?.categoryImage ?? '',
+                            height: 40.h,
+                            width: 40.w,
+                            fit: BoxFit.contain,
+                            errorWidget: (context, url, error) => Image.asset(ImageAssetPath.silverCup),
+                          ),
+                          title: Text(category?.categoryName ?? '', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                          onTap: () {
+                            if (category?.id == null) {
+                              Navigator.pop(context, null); // This means All Categories
+                            } else {
+                              Navigator.pop(context, category);
+                            }
+                          },
+                        );
+                      },
+                    );
             },
           );
         },

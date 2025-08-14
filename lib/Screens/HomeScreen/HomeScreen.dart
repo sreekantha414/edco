@@ -208,43 +208,102 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
               builder: (context, categoriesSnapshot) {
                 return Scaffold(
                   backgroundColor: const Color(0xFFFAF7F3),
-                  drawer: DrawerScreen(),
                   appBar: AppBar(
+                    leading: IconButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration: const Duration(milliseconds: 400),
+                              pageBuilder: (context, animation, secondaryAnimation) => DrawerScreen(),
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(-1, 0),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.menu)),
                     backgroundColor: Colors.white,
                     iconTheme: const IconThemeData(color: Colors.black),
-                    title: DropdownButtonHideUnderline(
-                      child: DropdownButton<Categories>(
-                        value: selectedCategory,
-                        hint: const Text('Select Category', style: TextStyle(color: Colors.black)),
-                        items:
-                            (categoriesSnapshot.data ?? [])
-                                .map(
-                                  (cat) => DropdownMenuItem<Categories>(
-                                    value: cat,
-                                    child: Text(cat.categoryName ?? '', style: const TextStyle(color: Colors.black)),
-                                  ),
-                                )
-                                .toList(),
-                        onChanged: (value) {
+                    title: GestureDetector(
+                      onTap: () async {
+                        final selectedCat = await Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(milliseconds: 400),
+                            pageBuilder: (context, animation, secondaryAnimation) => CategoriesScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(1, 0), // right to left
+                                  end: Offset.zero,
+                                ).animate(animation),
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
+                        if (selectedCat != null && selectedCat is Categories) {
                           setState(() {
-                            selectedCategory = value;
+                            selectedCategory = selectedCat;
                           });
                           _resetPaginationForCurrentTab();
                           _callAwardListForCurrentSelection('');
-                        },
+                        } else {
+                          setState(() {
+                            selectedCategory = null;
+                          });
+                          _resetPaginationForCurrentTab();
+                          _callAwardListForCurrentSelection('');
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            selectedCategory?.categoryName ?? 'All Categories',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          Icon(Icons.arrow_drop_down)
+                        ],
                       ),
                     ),
                     actions: [
                       IconButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => SearchScreen()));
+                        onPressed: () async {
+                          final selectedCat = await Navigator.push(context, MaterialPageRoute(builder: (context) => SearchScreen()));
+                          if (selectedCat != null && selectedCat is Categories) {
+                            setState(() {
+                              selectedCategory = selectedCat;
+                            });
+                            _resetPaginationForCurrentTab();
+                            _callAwardListForCurrentSelection('');
+                          }
                         },
                         icon: const Icon(Icons.search),
                       ),
                       const SizedBox(width: 12),
                       IconButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => CategoriesScreen()));
+                        onPressed: () async {
+                          final selectedCat = await Navigator.push(context, MaterialPageRoute(builder: (context) => CategoriesScreen()));
+                          if (selectedCat != null && selectedCat is Categories) {
+                            setState(() {
+                              selectedCategory = selectedCat;
+                            });
+                            _resetPaginationForCurrentTab();
+                            _callAwardListForCurrentSelection('');
+                          } else {
+                            setState(() {
+                              selectedCategory = null;
+                            });
+                            _resetPaginationForCurrentTab();
+                            _callAwardListForCurrentSelection('');
+                          }
                         },
                         icon: const Icon(Icons.grid_view),
                       ),
