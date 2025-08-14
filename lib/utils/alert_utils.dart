@@ -10,20 +10,19 @@ class AlertUtils {
     debugPrint("Display alert");
     showDialog(
       context: context,
-      builder:
-          (BuildContext context) => CupertinoAlertDialog(
-            title: Text(title),
-            content: Padding(padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0), child: Text(message)),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                isDefaultAction: true,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("OK"),
-              ),
-            ],
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Padding(padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0), child: Text(message)),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("OK"),
           ),
+        ],
+      ),
     );
   }
 
@@ -173,9 +172,9 @@ class AlertUtils {
     ScaffoldMessenger.of(context!).showSnackBar(
       _snackbarContent(
         context: context,
-        backgroundColor: Colors.amber.shade800, // Yellow color for warning
+        backgroundColor: Colors.amber.shade800,
         message: message,
-        icon: Icons.warning, // Warning icon
+        icon: Icons.warning,
       ),
     );
   }
@@ -189,7 +188,7 @@ class AlertUtils {
     return SnackBar(
       behavior: SnackBarBehavior.floating,
       backgroundColor: backgroundColor,
-      margin: EdgeInsets.only(bottom: 60.h, left: 20.w, right: 20.w),
+      margin: EdgeInsets.only(bottom: 100.h, left: 20.w, right: 20.w),
       content: Row(
         children: [
           Expanded(

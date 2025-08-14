@@ -11,6 +11,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:ui' as ui;
 
+import '../../utils/app_helper.dart';
+
 class AwardEditData {
   String text;
   Offset position;
@@ -162,12 +164,18 @@ class _AwardEditorState extends State<AwardEditor> {
                 top: textPosition.dy,
                 child: GestureDetector(
                   onPanUpdate: onPanUpdate,
-
-                  // onPanUpdate: (details) {
-                  //   setState(() {
-                  //     textPosition += details.delta;
-                  //   });
-                  // },
+                  onLongPress: () {
+                    AppHelper.showLogoutConfirmationDialog(
+                      context: context,
+                      title: 'Confirm you want to delete the text?',
+                      onTap: () {
+                        setState(() {
+                          inputText = ""; // Remove text
+                        });
+                        Navigator.pop(context); // Close the dialog
+                      },
+                    );
+                  },
                   child: Text(
                     inputText,
                     style: TextStyle(

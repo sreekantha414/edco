@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../Widget/webview_widget.dart';
+import '../DrawerScreen/drawer_screen.dart';
 
 /// ✅ Mission Screen
 class MissionScreen extends StatelessWidget {
@@ -10,7 +11,7 @@ class MissionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(),
+      drawer: DrawerScreen(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -31,7 +32,7 @@ class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(),
+      drawer: DrawerScreen(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -52,7 +53,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(),
+      drawer: DrawerScreen(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -72,7 +73,7 @@ class ContactUs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(),
+      drawer: DrawerScreen(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -92,7 +93,7 @@ class AccountDelete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(),
+      drawer: DrawerScreen(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,

@@ -1,4 +1,5 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:award_maker/Screens/AwardDetailScreen/award_details_screen.dart';
 import 'package:award_maker/Screens/DrawerScreen/drawer_screen.dart';
 import 'package:award_maker/Screens/Notification/Bloc/notification_list_bloc.dart';
 import 'package:award_maker/Screens/Notification/Model/NotificationList.dart';
@@ -64,7 +65,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
       backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
-
         child: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -92,8 +92,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
             } else {
               hasNextPageUP = false;
             }
-          } else if (notificationListState.isFailed) {
-            AlertUtils.showToast(notificationListState.responseMsg ?? '', context, AnimatedSnackBarType.error);
           }
         },
         builder: (context, notificationListState) {
@@ -103,60 +101,70 @@ class _NotificationScreenState extends State<NotificationScreen> {
               return notificationListSnapshot.data?.isEmpty == true
                   ? Center(child: CircularProgressIndicator())
                   : Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          controller: _controller,
-                          itemCount: notificationListSnapshot.data?.length ?? 0,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          itemBuilder: (context, index) {
-                            final item = notificationListSnapshot.data?[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(color: const Color(0xFFFDFBF9), borderRadius: BorderRadius.circular(16)),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl: item?.imageName ?? '',
-                                      height: 50.h,
-                                      fit: BoxFit.contain,
-                                      errorWidget: (context, url, error) => Image.asset(ImageAssetPath.silverCup),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item?.imageName ?? '',
-                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            controller: _controller,
+                            itemCount: notificationListSnapshot.data?.length ?? 0,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            itemBuilder: (context, index) {
+                              final item = notificationListSnapshot.data?[index];
+                              return GestureDetector(
+                                onTap: () async {
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AwardDetailPage(
+                                                imageID: item?.id,
+                                              )));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(color: const Color(0xFFFDFBF9), borderRadius: BorderRadius.circular(16)),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        CachedNetworkImage(
+                                          imageUrl: item?.imageUrl ?? '',
+                                          height: 50.h,
+                                          fit: BoxFit.contain,
+                                          errorWidget: (context, url, error) => Image.asset(ImageAssetPath.silverCup),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item?.imageName ?? '',
+                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(item?.createdAt ?? '', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                                            ],
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(item?.createdAt ?? '', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      if (notificationListState.isMoreLoading == true)
-                        Center(
-                          child: Container(
-                            height: 50.h,
-                            alignment: Alignment.bottomCenter,
-                            color: Colors.white,
-                            child: CircularProgressIndicator(color: AppColors.blue),
+                              );
+                            },
                           ),
                         ),
-                    ],
-                  );
+                        if (notificationListState.isMoreLoading == true)
+                          Center(
+                            child: Container(
+                              height: 50.h,
+                              alignment: Alignment.bottomCenter,
+                              color: Colors.white,
+                              child: CircularProgressIndicator(color: AppColors.blue),
+                            ),
+                          ),
+                      ],
+                    );
             },
           );
         },

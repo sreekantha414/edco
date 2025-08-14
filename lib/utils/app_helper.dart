@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:animated_snack_bar/animated_snack_bar.dart';
-import 'package:award_maker/Screens/WelcomeScreen/welcome_screen.dart';
 import 'package:award_maker/main.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
@@ -9,20 +8,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../Screens/SignUpScreen/Model/SignUpModel.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
-import '../Widget/webview_widget.dart';
 import '../api_client/dio_client.dart';
-import '../constants/app_constants.dart';
 import 'alert_utils.dart';
 
 class AppHelper {
-  static void showLogoutConfirmationDialog(BuildContext context, void Function()? onTap) {
+  static void showLogoutConfirmationDialog({required BuildContext context, void Function()? onTap, String? title}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: false,
@@ -40,8 +35,8 @@ class AppHelper {
             children: [
               const Text('Confirm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, fontFamily: 'Poppins_Bold')),
               const SizedBox(height: 12),
-              const Text(
-                'Confirm you want to logout ?',
+              Text(
+                title ?? '',
                 style: TextStyle(fontSize: 14, color: Colors.black54, fontFamily: 'Poppins_Regular'),
               ),
               const SizedBox(height: 24),

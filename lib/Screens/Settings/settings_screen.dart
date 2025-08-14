@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:award_maker/Screens/Change%20Password/chnage_password.dart';
+import 'package:award_maker/Screens/DrawerScreen/drawer_screen.dart';
 import 'package:award_maker/Screens/MissionScreen/mission_screen.dart';
 import 'package:award_maker/Screens/Notification/Bloc/notification_list_bloc.dart';
 import 'package:award_maker/Screens/Settings/Bloc/notification_toggle_bloc.dart';
@@ -34,15 +35,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void inItData() async {
     prefs = await SharedPreferences.getInstance();
+    isNotificationOn = await prefs.getBool('isNotiOn');
 
-    setState(() async {
-      isNotificationOn = await prefs.getBool('isNotiOn');
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerScreen(),
       backgroundColor: const Color(0xFFFCFAF6),
       appBar: AppBar(
         backgroundColor: const Color(0xFFFCFAF6),
@@ -52,15 +53,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Settings',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontFamily: "Poppins_Bold", fontSize: 18),
         ),
-        leading: IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () {}),
       ),
       body: BlocConsumer<NotificationToggleBloc, NotificationToggleState>(
         listener: (context, notificationToggleState) async {
           if (notificationToggleState.isCompleted) {
             await prefs.setBool('isNotiOn', notificationToggleState.model?.result?.notificationEnabled ?? false);
-            setState(() async {
-              isNotificationOn = await prefs.getBool('isNotiOn');
-            });
+            isNotificationOn = await prefs.getBool('isNotiOn');
+
+            setState(() {});
           }
         },
         builder: (context, notificationToggleState) {
@@ -107,26 +107,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 onTap: () {
-                  AppHelper.showLogoutConfirmationDialog(context, () async {
-                    final pref = await SharedPreferences.getInstance();
-                    await pref.clear();
-                    AppHelper.signOutGoogle();
-                    await Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
-                  });
-                },
-              ),
-              _buildCard(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text('Request for delete the account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    Icon(Icons.delete_outline, color: Color(0xFFEB5757)),
-                  ],
-                ),
-                onTap: () {
-                  AppHelper.showLogoutConfirmationDialog(context, () async {
-                    await Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDelete()));
-                  });
+                  AppHelper.showLogoutConfirmationDialog(
+                    context: context,
+                    onTap: () async {
+                      final pref = await SharedPreferences.getInstance();
+                      await pref.clear();
+                      AppHelper.signOutGoogle();
+                      await Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                    },
+                    title: 'Confirm you want to logout ?',
+                  );
                 },
               ),
               if (Platform.isIOS) ...[
@@ -140,9 +130,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                   onTap: () {
-                    AppHelper.showLogoutConfirmationDialog(context, () async {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDelete()));
-                    });
+                    AppHelper.showLogoutConfirmationDialog(
+                      context: context,
+                      onTap: () async {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AccountDelete()));
+                      },
+                      title: 'Confirm you want to delete account ?',
+                    );
                   },
                 ),
               ],

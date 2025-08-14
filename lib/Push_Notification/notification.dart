@@ -94,7 +94,7 @@ class PushNotificationService {
               //   channel?.description ?? '',
               // TODO add a proper drawable resource to android, for now using
               //      one that already exists in example app.
-              icon: 'ic_notification',
+              icon: 'ic_launcher',
               importance: Importance.high,
               enableVibration: true,
               enableLights: true,

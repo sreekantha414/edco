@@ -67,43 +67,44 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               // Google Sign-In Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  icon: Image.asset(ImageAssetPath.google, height: 24),
-                  label: const Text('Google', style: TextStyle(color: Colors.black)),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.black12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    backgroundColor: Colors.white,
+              if (Platform.isAndroid) ...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    icon: Image.asset(ImageAssetPath.google, height: 24),
+                    label: const Text('Google', style: TextStyle(color: Colors.black)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.black12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      final result = await AppHelper.signInWithGoogle(context);
+                      logger.w(result?['result']['authtoken']);
+
+                      if (result != null) {
+                        await prefs.setString('uid', result['result']['_id']);
+                        await prefs.setString('uname', result['result']['name']);
+                        await prefs.setString('email', result['result']['email']);
+                        await prefs.setString(AppConstants.token, result['result']['authtoken']);
+                        await prefs.setBool('login', true);
+
+                        var token = await prefs.getString(AppConstants.token);
+                        logger.w(token);
+
+                        AlertUtils.showToast('Login Successfully' ?? '', context, AnimatedSnackBarType.success);
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const Homescreen()));
+
+                        print("Login success: $result");
+                      } else {
+                        print("Login failed or canceled");
+                      }
+                    },
                   ),
-                  onPressed: () async {
-                    final result = await AppHelper.signInWithGoogle(context);
-                    logger.w(result?['result']['authtoken']);
-
-                    if (result != null) {
-                      await prefs.setString('uid', result['result']['_id']);
-                      await prefs.setString('uname', result['result']['name']);
-                      await prefs.setString('email', result['result']['email']);
-                      await prefs.setString(AppConstants.token, result['result']['authtoken']);
-                      await prefs.setBool('login', true);
-
-                      var token = await prefs.getString(AppConstants.token);
-                      logger.w(token);
-
-                      AlertUtils.showToast('Login Successfully' ?? '', context, AnimatedSnackBarType.success);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const Homescreen()));
-
-                      print("Login success: $result");
-                    } else {
-                      print("Login failed or canceled");
-                    }
-                  },
                 ),
-              ),
-
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
+              ],
 
               Form(
                 key: _formKey,
