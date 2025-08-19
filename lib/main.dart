@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'Push_Notification/firebase_options.dart';
 import 'Push_Notification/notification.dart';
 import 'Screens/AwardDetailScreen/Bloc/award_detail_bloc.dart';
 import 'Screens/Categories/Bloc/categories_bloc.dart';
@@ -39,14 +40,14 @@ GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
-    options: FirebaseOptions(
-      apiKey: "AIzaSyBxJbEDSL1WB7lOVuYVPr2ws_YsNSFjx8E",
-      appId: "1:367424942344:android:452d56e19e0f40e94b3cbd",
-      messagingSenderId: "367424942344",
-      projectId: "award-maker-by-edco",
-    ),
-  );
+
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      name: 'AwardMaker',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   setupDependencies();

@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../Widget/cirlce_button_widget.dart';
 import '../../constants/asset_path.dart';
 import '../../utils/alert_utils.dart';
@@ -56,6 +57,7 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
       listener: (context, awardDetailState) {},
       builder: (context, awardDetailState) {
         final imageUrl = awardDetailState.model?.result?.first.imageUrl ?? '';
+        final webUrl = awardDetailState.model?.result?.first.webUrl ?? 'https://www.edco.com/searchresults?q=award';
         final imageName = awardDetailState.model?.result?.first.imageName ?? '';
 
         return Scaffold(
@@ -92,13 +94,19 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                         borderRadius: BorderRadius.circular(16),
                         child: Stack(
                           children: [
-                            CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              errorWidget: (context, url, error) => Image.asset(ImageAssetPath.silverCup),
-                            ),
+                            awardDetailState.isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                    ),
+                                  )
+                                : CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    errorWidget: (context, url, error) => Image.asset(ImageAssetPath.silverCup),
+                                  ),
                             if (editedData != null && editedData!.text.isNotEmpty)
                               Positioned(
                                 left: _scaleX(editedData!.position.dx),
@@ -263,7 +271,7 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
                                   width: double.infinity,
                                   child: OutlinedButton(
                                     onPressed: () async {
-                                      Share.share(imageUrl);
+                                      openInBrowser(webUrl);
                                     },
                                     style: OutlinedButton.styleFrom(
                                       side: const BorderSide(color: Colors.white),
@@ -316,6 +324,17 @@ class _AwardDetailPageState extends State<AwardDetailPage> with SingleTickerProv
     double scale = detailImageHeight / editorImageHeight;
 
     return editorY * scale;
+  }
+
+  Future<void> openInBrowser(String url) async {
+    final Uri uri = Uri.parse(url);
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
+    }
   }
 
   Future<void> getAwardDetails(String? id) async {

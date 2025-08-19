@@ -101,7 +101,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       Spacer(), // Get Started button
                       AppButton(
                         padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        buttonName: 'Get tarted',
+                        buttonName: 'Get Started',
                         buttonColor: Colors.blue,
                         style: TextStyle(fontSize: 16.sp, color: Colors.white, fontFamily: "Poppins_Bold"),
                         onPress: () {

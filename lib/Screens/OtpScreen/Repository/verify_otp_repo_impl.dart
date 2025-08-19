@@ -16,7 +16,13 @@ class VerifyOtpRepositoryImpl extends VerifyOtpRepository {
   @override
   Future<ApiResponse<VerifyOtpModel>> verifyOtp(id, data) async {
     try {
-      final response = await _dio.patch(APIConstants.verifyOtp, data: data);
+      final response;
+      if (id?.isNotEmpty == true || id != null) {
+        ///Email verify
+        response = await _dio.patch('${APIConstants.verifyOtp}/$id', data: data);
+      } else {
+        response = await _dio.patch(APIConstants.passwordVerify, data: data);
+      }
 
       print('Response -> ${response.data}');
       logger.i(response.data);

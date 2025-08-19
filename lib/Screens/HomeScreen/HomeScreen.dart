@@ -97,7 +97,8 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
   }
 
   void _loadMore() async {
-    if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+    // if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+    if (_controller.position.pixels >= _controller.position.maxScrollExtent - 50) {
       if (isLoadingMore) return;
       bool isInternet = await AppUtils.checkInternet();
       if (!isInternet) {
@@ -182,12 +183,19 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SetFavoriteBloc, SetFavoriteState>(
-      listener: (context, setFavoriteState) {
+      listener: (context, setFavoriteState) async {
         if (setFavoriteState.isCompleted) {
-          _fetchForTab(_tabController.index, '');
+          awardList.value.clear();
+          favoriteList.value.clear();
+
+          if (_tabController.index == 2) {
+            await getFavoriteListForTab(pageFavorites, selectedCategory?.id?.toString() ?? '', _tabController.index, '');
+          } else {
+            await getAwardListForTab(1, _tabTags[_tabController.index], selectedCategory?.id?.toString(), _tabController.index, '');
+          }
         }
       },
-      builder: (context, state) {
+      builder: (context, setFavoriteState) {
         return BlocConsumer<CategoriesBloc, CategoriesState>(
           listener: (context, categoriesState) {
             if (categoriesState.isCompleted) {
@@ -353,6 +361,7 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
                           }
                         },
                         builder: (context, awardListState) {
+                          final isLoading = _tabController.index == 2 ? favoriteListState.isLoading : awardListState.isLoading;
                           return StreamBuilder<List<AwardList>>(
                             stream: awardList,
                             builder: (context, awardListSnapshot) {
@@ -362,9 +371,9 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
                                   return TabBarView(
                                     controller: _tabController,
                                     children: [
-                                      _buildGrid(awardListSnapshot.data ?? [], awardListSnapshot.data, isAward: true),
-                                      _buildGrid(awardListSnapshot.data ?? [], awardListSnapshot.data, isAward: true),
-                                      _buildGrid(favoriteListSnapshot.data ?? [], awardListSnapshot.data, isAward: false),
+                                      _buildGrid(favoriteListSnapshot.data ?? [], awardListSnapshot.data ?? [], isLoading, isAward: true),
+                                      _buildGrid(favoriteListSnapshot.data ?? [], awardListSnapshot.data ?? [], isLoading, isAward: true),
+                                      _buildGrid(favoriteListSnapshot.data ?? [], awardListSnapshot.data ?? [], isLoading, isAward: false),
                                     ],
                                   );
                                 },
@@ -384,17 +393,23 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildGrid(List<dynamic> data, List<AwardList>? awardList, {required bool isAward}) {
+  Widget _buildGrid(List<FavoriteList> favs, List<AwardList> awards, bool? isLoading, {required bool isAward}) {
     if (_isLoading[_tabController.index]) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (data.isEmpty) {
+    if (isLoading == true) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    // ✅ Use the correct list for the active tab
+    final bool isEmpty = isAward ? awards.isEmpty : favs.isEmpty;
+    if (isEmpty) {
       return const Center(child: Text("No data available"));
     }
+
     return GridView.builder(
       controller: _controller,
       padding: const EdgeInsets.all(8),
-      itemCount: data.length,
+      itemCount: isAward ? awards.length : favs.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.85,
@@ -402,13 +417,20 @@ class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateM
         mainAxisSpacing: 10,
       ),
       itemBuilder: (context, index) {
+        final award = isAward ? awards[index] : null;
+        final fav = isAward ? null : favs[index];
         return buildCard(
           index,
           () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => AwardDetailPage(imageID: awardList?[index].id)));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AwardDetailPage(
+                          imageID: isAward ? award!.id : fav!.id,
+                        )));
           },
-          data: isAward ? data[index] : null,
-          favData: isAward ? null : data[index],
+          data: award,
+          favData: fav,
         );
       },
     );

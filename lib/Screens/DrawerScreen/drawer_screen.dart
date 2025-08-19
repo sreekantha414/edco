@@ -247,15 +247,13 @@ class _DrawerScreenState extends State<DrawerScreen> {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => MissionScreen()));
                           },
                         ),
-                        if (Platform.isIOS) ...[
-                          DrawerTile(
-                            icon: Icons.phone,
-                            title: 'Contact Us',
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ContactUs()));
-                            },
-                          ),
-                        ],
+                        DrawerTile(
+                          icon: Icons.phone,
+                          title: 'Contact Us',
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ContactUs()));
+                          },
+                        ),
                         DrawerTile(
                           icon: Icons.privacy_tip,
                           title: 'Privacy Policy',

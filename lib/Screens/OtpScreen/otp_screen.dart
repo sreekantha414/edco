@@ -42,7 +42,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
   }
 
   void inItData() async {
-      deviceData = await AppHelper.getDeviceData();
+    deviceData = await AppHelper.getDeviceData();
     logger.w(deviceData?.toJson());
   }
 
@@ -116,8 +116,13 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                       keyboardType: TextInputType.number,
                       onChanged: (value) {
                         if (value.length == 4) {
-                          var body = {"email": widget.email, "otp": value};
-                          verifyOtp(body);
+                          if (widget.isFromSignIn == true) {
+                            var body = {"otp": pinController.text.trim()};
+                            verifyOtp(body, widget.userId);
+                          } else {
+                            var body = {"email": widget.email, "otp": pinController.text.trim()};
+                            verifyOtp(body, null);
+                          }
                         }
                       },
                     ),
@@ -163,6 +168,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => ChangePasswordScreen(token: verifyOtpState.model?.result?.token)),
                     );
+                    AlertUtils.showToast("Otp Verified Successfully" ?? '', context, AnimatedSnackBarType.success);
                   }
                 } else if (verifyOtpState.isFailed) {
                   AlertUtils.showToast(verifyOtpState.responseMsg ?? '', context, AnimatedSnackBarType.error);
@@ -176,11 +182,11 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                   style: TextStyle(fontSize: 14.sp, color: Colors.white, fontFamily: "Poppins_Bold"),
                   onPress: () {
                     if (widget.isFromSignIn == true) {
-                      var body = {"email": widget.email, "otp": pinController.text.trim(), "deviceData": deviceData?.toJson()};
-                      verifyOtp(body);
+                      var body = {"otp": pinController.text.trim()};
+                      verifyOtp(body, widget.userId);
                     } else {
                       var body = {"email": widget.email, "otp": pinController.text.trim()};
-                      verifyOtp(body);
+                      verifyOtp(body, null);
                     }
                   },
                 );
@@ -192,10 +198,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     );
   }
 
-  Future<void> verifyOtp(dynamic data) async {
+  Future<void> verifyOtp(dynamic data, String? id) async {
     bool isInternet = await AppUtils.checkInternet();
     if (isInternet) {
-      BlocProvider.of<VerifyOtpBloc>(context).add(PerformVerifyOtpEvent(data: data, id: widget.userId));
+      BlocProvider.of<VerifyOtpBloc>(context).add(PerformVerifyOtpEvent(data: data, id: id));
     } else {
       AlertUtils.showNotInternetDialogue(context);
     }

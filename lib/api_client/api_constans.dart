@@ -9,7 +9,8 @@ class APIConstants {
   static const login = 'login';
   static const users = 'users';
   static const category = 'category';
-  static const verifyOtp = 'password/verify';
+  static const passwordVerify = 'password/verify';
+  static const verifyOtp = 'users/verify';
   static const reSendOtp = 'resend';
   static const passwordForgot = 'password/forgot';
   static const notificationList = 'images/notification';

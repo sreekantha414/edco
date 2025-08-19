@@ -25,16 +25,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController emailC = TextEditingController();
   final TextEditingController passwordC = TextEditingController();
   final TextEditingController confirmPasswordC = TextEditingController();
-  DeviceData? deviceData;
   @override
   void initState() {
     super.initState();
-    inItData();
-  }
-
-  void inItData() async {
-    deviceData = await AppHelper.getDeviceData();
-    logger.w(deviceData?.toJson());
   }
 
   @override
@@ -130,7 +123,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             "name": nameC.text.trim(),
                             "email": emailC.text.trim(),
                             "password": passwordC.text.trim(),
-                            "deviceData": deviceData?.toJson(),
                           };
 
                           signUp(body);
